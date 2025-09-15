@@ -37,8 +37,6 @@ main:
 	li 	$v0,1
 	move	$a0,$t0
 	
-	#move	valor1,$t0
-	
 	syscall #imprime o primeiro inteiro do cara, endereço a0
 	
 	############################################################
