@@ -39,11 +39,11 @@ main:
 	
 	
 	li 	$v0,10 #ENCERAR O PROGRAMA PARA EVITAR LOOP
-	syscall
+	#syscall
 	
 	
 	
-    	jal PROC_TRANS 	# calcula transposta de B
+    jal PROC_TRANS 	# calcula transposta de B
    	jal PROC_MUL 	# calcula matriz resultante = A * BT
 
     	# imprime matResult no console para verificar (depois tirar quando for pra .txt)
