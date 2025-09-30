@@ -1,7 +1,7 @@
 .data
 	promptRaiz: 	.asciiz "Entre com um inteiro para a raiz ser calculada: "
 	promptN: 	.asciiz "Entre com um inteiro N para ser número de iterações: "	
-	result: 	.asciiz "O inteiro digitado fornecido eh: "
+	result: 	.asciiz "O double digitado fornecido eh: "
 	resultReturn:	.asciiz "O valor de retorno que main recebeu eh: "
 	currentLoop:	.asciiz "O n do loop atual: "
 	estimativaFinal:.asciiz "\nEstimativa final= "
@@ -9,7 +9,7 @@
 	erroAbsoluto:   .asciiz "\nErro Absoluto = "
 	
 	newline:	.asciiz "\n"
-	hello: 		.asciiz "Oi, alunos de INE5411"
+	hello: 		.asciiz "Oi usuário ;D "
 	var: 		.word 7 #8 BYTES
 	
 	estimativa:	.word 1 #estimativa inicial pedida pelo exercicio
@@ -160,23 +160,17 @@ TAKE_NUMs:
 	syscall
 	
 
-	li 	$v0,5 #pega inteiro x user
+	li 	$v0,7 #pega double x user
 	syscall
-	move 	$t0,$v0 #salva em t0
 	
 	li 	$v0,4
-	la 	$a0,result #fala o seu inteiro eh:
+	la 	$a0,result #fala o seu double eh:
 	syscall
 	
-	li 	$v0,1
-	move	$a0,$t0
-	syscall #imprime o primeiro inteiro do cara, endereço a0
-	
-	mtc1	$t0,$f2 #move x que estava em t0 para f2, talvez possa fazer isso direto antes mas deixei por causa do print
-	cvt.d.w	$f2,$f2	#CONVERTENDO f2 PARA float (f1 também estará ocupado pois é precisão dupla)
-	
-	#TODO: SALVAR X EM REGISTR PONTO FLUTUANTE PRECISÃO DUPLA PARA SER USADO OUTRO PROCE
-	
+	li 	$v0,3
+	mov.d	$f12,$f0
+	syscall #imprime o double, endereço f0
+		
 	li 	$v0,4
 	la 	$a0,newline
 	syscall
@@ -201,7 +195,6 @@ TAKE_NUMs:
 	syscall #imprime  n
 	
 	move	$v0,$t1	#usa padrão que v0/v1 retorno. poderia usar stack também
-	mov.d 	$f0,$f2
 	
 	jr 	$ra
 	
