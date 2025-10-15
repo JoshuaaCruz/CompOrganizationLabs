@@ -5,13 +5,13 @@
 	resultSize: .asciiz "\nO tamanho vet eh: "
 	evenNum: .asciiz "\nNumeros do vetor: "
 	
-	size: .word
-	array: .word #array tamanho size...como fazer?
+	size: .word 0
+	array: .space 400
 	key: .word
 	
 	promptNumProcurar: .asciiz "\nDigite o número a procurar: "
 	
-	found: .word
+	#found: .word
 	
 	outEnc: .asciiz "\nNúmero encontrado"
 	outNoEnc: .asciiz "\nNúmero não encontrado"
@@ -51,6 +51,12 @@ loopNumsVet:
 	move 	$t1,$v0 #salva em t1, ver jeito de 
 	
 	#TODO: salvar em vetor pos de t0(i)
+	#############
+	la   $t2, array #endereço base do vetor
+	sll  $t3, $t0, 2 #deslocamento i*4
+	add  $t2, $t2, $t3 #endereço do elemento
+	sw   $t1, 0($t2) #salva numero no vetor
+	##############
 	
 	addi	$t0,$t0,1
 	
@@ -72,35 +78,32 @@ loopProcuraKey:
 	
 	#TODO: compara array[i] == key
 	#se achou pula para found
+	###################
+	la   $t4, array
+	sll  $t5, $t0, 2
+	add  $t4, $t4, $t5
+	lw   $t6, 0($t4)
+	beq  $t6, $s1, found
+	###################
 	
 	addi	$t0,$t0,1
-
 	j	loopProcuraKey
+
 found:
-	move	$t2,$zero
-	addi	$t2,$t2,1
-	sw	$t2,found #move zero a t2, soma 1 e depois salva
-	
-fim:
-	move 	$t9,$zero
-	addi 	$t9,$t9,1
-	beq	$t9,$t2,encontrado #pula para encontrado
-	
-	#caso não tenha encontrado
+	# imprime mensagem de numero encontrado
 	li 	$v0,4
-	la 	$a0,outNoEnc #imprime prompt
+	la 	$a0,outEnc
+	syscall
+	j	shutDown
+
+fim:
+	# caso nao tenha encontrado
+	li 	$v0,4
+	la 	$a0,outNoEnc
 	syscall
 	
 	j	shutDown
 	
-encontrado:
-
-	li 	$v0,4
-	la 	$a0,outEnc #imprime prompt
-	syscall
-	
 shutDown:
-   	li   $v0, 10       # syscall para terminar a execução
+   	li   $v0, 10 # syscall para terminar a execução
    	syscall
-
-	
