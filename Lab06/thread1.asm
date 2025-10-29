@@ -42,7 +42,3 @@ loopJ1:
 	addi		$s0, $a0,1000
 	
 	j		loopJ1
-	
-ret: 
-li $v0 1
-jr $ra

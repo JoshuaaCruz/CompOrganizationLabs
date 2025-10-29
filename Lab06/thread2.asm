@@ -40,7 +40,3 @@ loopJ2:
 	addi		$s3, $a0,3000
 	
 	j		loopJ2	
-
-ret: 
-li $v0 1
-jr $ra
