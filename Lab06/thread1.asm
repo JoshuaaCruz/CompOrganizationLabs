@@ -5,6 +5,8 @@
 .data
 	vetor1: .word 0
 	msg1:	.asciiz "\nThread 1 (1s): "
+	.eqv display_esq 0xffff0011
+
 .text
 p1:
 
@@ -34,6 +36,8 @@ loopJ1:
 	li		$v0, 1			# Print integer (o contador)
 	move		$a0, $t0
 	syscall
+
+	sb      $t0, display_esq
 	
 	#definindo próxima marca de 1s
 	
