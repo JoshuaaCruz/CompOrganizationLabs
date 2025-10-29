@@ -33,10 +33,14 @@ loopJ2:
 	move		$a0, $t0
 	syscall
 	
-	#definindo próxima marca de 1s
+	#definindo próxima marca de 3s
 	
 	li		$v0,30
 	syscall
 	addi		$s3, $a0,3000
 	
 	j		loopJ2	
+
+ret: 
+li $v0 1
+jr $ra

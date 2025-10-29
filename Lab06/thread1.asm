@@ -6,6 +6,7 @@
 	vetor1: .word 0
 	msg1:	.asciiz "\nThread 1 (1s): "
 .text
+p1:
 
 JThr_1:
 		
@@ -41,3 +42,7 @@ loopJ1:
 	addi		$s0, $a0,1000
 	
 	j		loopJ1
+	
+ret: 
+li $v0 1
+jr $ra
