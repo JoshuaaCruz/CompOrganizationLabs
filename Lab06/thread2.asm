@@ -5,6 +5,8 @@
 .data
 	vetor2: .word 0
 	msg2:	.asciiz "\nThread 2 (3s): "
+	.eqv display_dir 0xffff0010
+
 .text
 
 JThr_2:
@@ -32,7 +34,9 @@ loopJ2:
 	li		$v0, 1			# Print integer (o contador)
 	move		$a0, $t0
 	syscall
-	
+
+	sb      $t0, display_dir
+
 	#definindo próxima marca de 3s
 	
 	li		$v0,30
