@@ -12,11 +12,16 @@ str_alcool: .asciiz "Alcool"
 nomes:  .word str_comum, str_aditivada, str_alcool
 
 #INTAKE
-prompt_principal: .asciiz "\nVocê está no menu inicial, escolha uma opção:\n1 - Selecionar combustível para encher\n2 - Alterar preço de algum combustível\n3 - Abastecer combustível selecionado\n4 - Encerrar programa\n"
+prompt_principal: .asciiz "\nVocê está no menu inicial, escolha uma opção:\n1 - Selecionar combustível para encher\n2 - Alterar preço de algum combustível\n3 - Abastecer combustível selecionado\n4 - Encerrar programa\n5 - Alterar Modo (Litros/Valor)"
 
 prompt_select_comb: .asciiz "\nSelecione o combustível: 1 - gasolina comum; 2 - Gasolina aditivada; 3 - Álcool."
 
 prompt_preco: .asciiz "\nDigite o float desejado para mudar o preço: "
+
+prompt_modo: .asciiz "\nSelecione o modo de abastecimento:\n1 - Por Litros (L)\n2 - Por Valor (R$)\n"
+
+prompt_abastecer_litros: .asciiz "\nQuantos litros de "
+prompt_abastecer_valor: .asciiz "\nQual o valor (R$) de "
 
 #OUTAKE
 resultInt: .asciiz "\nO inteiro selecionado eh: "
@@ -31,6 +36,16 @@ preco_selected: .asciiz "\nPreço: "
 novo_preco_selected: .asciiz "\nNovo preço: "
 
 preco_negativo: .asciiz "\nErro: O preço não pode ser negativo. Tente novamente.\n"
+
+str_modo_litros: .asciiz "\nModo alterado para: Litros (L)\n"
+str_modo_valor: .asciiz "\nModo alterado para: Valor (R$)\n"
+
+str_a_pagar: .asciiz "\nTotal a pagar: R$ "
+str_a_abastecer: .asciiz "\nTotal a abastecer: "
+str_litros: .asciiz " Litros"
+
+str_abastecendo: .asciiz "\nAbastecendo..."
+str_abastecido: .asciiz "\nAbastecimento concluido!\n"
 
 .text
 
@@ -49,6 +64,9 @@ main:
     add $s2, $t1, $t0   # $s2 = &nomes[0]
     lw $s2, 0($s2)      # $s2 = &str_comum
 
+
+    li $s3, 1 #s3 guardará estado global da bomba, 1 -> Litros, 2 -> Dinheiro
+
 loop_menu_principal:
 
 	li 	$v0,4
@@ -64,11 +82,13 @@ loop_menu_principal:
     li $t2, 2
     li $t3, 3
     li $t4, 4
+    li $t5, 5
 
     beq $v0, $t1, select_combustivel # if (escolha == 1)
-    beq $v0, $t2, change_preco     # if (escolha == 2) -> AINDA NÃO IMPLEMENTADO
-    # beq $v0, $t3, abastecer        # if (escolha == 3) -> AINDA NÃO IMPLEMENTADO
-    beq $v0, $t4, shutDown           # if (escolha == 4)
+    beq $v0, $t2, change_preco       # if (escolha == 2)
+    beq $v0, $t3, abastecer          # if (escolha == 3)
+    beq $v0, $t4, shutDown           # if (escolha == 4) #talvez depois reordenar para shutdown ficar como ultima opção, mas não tô afim agora...
+    beq $v0, $t5, change_mode        # if (escolha == 5)
 
 ############## OPÇÃO NÚMERO ERRADO ##############################
     li 	$v0,4
@@ -141,6 +161,41 @@ select_combustivel_erro:
     la $a0, num_errado
     syscall
     j select_combustivel # Pula de volta para o *início* da seleção
+
+
+change_mode:
+    li $v0, 4
+    la $a0, prompt_modo
+    syscall
+    
+    li $v0, 5
+    syscall
+    
+    li $t1, 1
+    li $t2, 2
+    
+    beq $v0, $t1, set_mode_litros
+    beq $v0, $t2, set_mode_valor
+
+    # Se não for 1 nem 2, é um erro
+    li $v0, 4
+    la $a0, num_errado
+    syscall
+    j change_mode
+
+set_mode_litros:
+    li $s3, 1      # Define o modo global
+    li $v0, 4
+    la $a0, str_modo_litros
+    syscall
+    j loop_menu_principal
+    
+set_mode_valor:
+    li $s3, 2      # Define o modo global
+    li $v0, 4
+    la $a0, str_modo_valor
+    syscall
+    j loop_menu_principal
 
 change_preco:
 
@@ -232,4 +287,144 @@ change_preco_erro:
     li $v0, 4
     la $a0, num_errado
     syscall
-    j change_preco # Pula de volta para o *início* da seleção
+    j change_preco
+
+abastecer:
+    # Verifica o modo salvo em $s3
+    li $t0, 1
+    beq $s3, $t0, abastecer_litros
+    
+    # Se não for 1, deve ser 2 (modo abastecer por valor)
+    j abastecer_valor
+
+abastecer_litros:
+    # Pergunta: "Quantos litros de [tal combustivel]?"
+    li $v0, 4
+    la $a0, prompt_abastecer_litros
+    syscall
+    li $v0, 4
+    move $a0, $s2   # Imprime o nome do combustível
+    syscall
+    
+    # Lê o float (litros)
+    li $v0, 6
+    syscall         # $f0 = litros
+    
+    # Carrega o preço do combustível selecionado
+    l.s $f2, 0($s1) # $f2 = preço/litro (do endereço em $s1)
+    
+    li $v0, 4
+    la $a0, preco_selected # "\nPreço: "
+    syscall
+    
+    li $v0, 2
+    mov.s $f12, $f2  # Copia $f2 (o preço) para $f12 (print)
+    syscall
+    
+    # Calcula o total: total = litros * preco
+    mul.s $f4, $f0, $f2
+    
+    # Imprime: "Total a pagar: R$ [valor]"
+    li $v0, 4
+    la $a0, str_a_pagar
+    syscall
+    
+    li $v0, 2
+    mov.s $f12, $f4 
+    syscall
+    
+    # "Abastecendo..."
+    li $v0, 4
+    la $a0, str_abastecendo
+    syscall
+    
+    # 2. Define o delay (ex: 3000 ms = 3 segundos)
+    li $a0, 3000
+    jal delay_ms       # Chama o procedimento de delay
+    
+    # "Abastecimento concluido!"
+    li $v0, 4
+    la $a0, str_abastecido
+    syscall
+
+    # TODO: CUPOM FISCAL
+    
+    j loop_menu_principal
+
+abastecer_valor:
+    # Pergunta: "Qual o valor (R$) de [tal combustivel]?"
+    li $v0, 4
+    la $a0, prompt_abastecer_valor
+    syscall
+    li $v0, 4
+    move $a0, $s2   # Imprime o nome do combustível
+    syscall
+    
+    # Lê o float (valor)
+    li $v0, 6
+    syscall         # $f0 = valor
+    
+    # Carrega o preço do combustível selecionado
+    l.s $f2, 0($s1) # $f2 = preço/litro (do endereço em $s1)
+    
+    li $v0, 4
+    la $a0, preco_selected # Imprime "\nPreço: "
+    syscall
+    
+    li $v0, 2
+    mov.s $f12, $f2  # $f2 (o preço) vai pra $f12 (print)
+    syscall
+    
+    # Calcula o total: litros = valor / preco
+    div.s $f4, $f0, $f2
+    
+    # Imprime: "Total a abastecer: [x] Litros"
+    li $v0, 4
+    la $a0, str_a_abastecer
+    syscall
+    
+    li $v0, 2
+    mov.s $f12, $f4  # Syscall 2 imprime $f12
+    syscall
+    
+    li $v0, 4
+    la $a0, str_litros
+    syscall
+
+    li $v0, 4
+    la $a0, str_abastecendo
+    syscall
+    
+    # Define o delay  3000 ms = 3 segundos
+    li $a0, 3000
+    jal delay_ms   
+    
+    # "Abastecimento concluido!"
+    li $v0, 4
+    la $a0, str_abastecido
+    syscall
+    
+    # TODO: CUPOM FISCAL
+
+    j loop_menu_principal
+
+
+
+delay_ms:
+    # É esperado que o tempo de espera seja salvo em a0 antes da chamada deste procedimento
+
+    move $t1, $a0        # $t1 = delay (ms)
+    
+    li $v0, 30           
+    syscall              # $a0 = tempo atual (em ms)
+    
+    add $t0, $a0, $t1    # $t0 = tempo_alvo = tempo_atual + delay
+    
+delay_loop:
+    li $v0, 30           
+    syscall              # $a0 = novo tempo atual
+    
+    blt $a0, $t0, delay_loop # if (novo_tempo_atual < tempo_alvo), continua no loop
+    
+    # se passou entao tempo alvo passou
+    jr $ra
