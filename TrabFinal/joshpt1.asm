@@ -3,6 +3,8 @@
 # Preços (4 bytes cada, .float)
 precos: .float 5.00, 5.20, 4.00  # [0]=comum, [1]=aditivada, [2]=alcool
 
+ms_por_litro: .float 2000.0 # 2 segundos por litro
+
 # Nomes (strings)
 str_comum: .asciiz "Gasolina Comum"
 str_aditivada: .asciiz "Gasolina Aditivada"
@@ -12,7 +14,7 @@ str_alcool: .asciiz "Alcool"
 nomes:  .word str_comum, str_aditivada, str_alcool
 
 #INTAKE
-prompt_principal: .asciiz "\nVocê está no menu inicial, escolha uma opção:\n1 - Selecionar combustível para encher\n2 - Alterar preço de algum combustível\n3 - Abastecer combustível selecionado\n4 - Encerrar programa\n5 - Alterar Modo (Litros/Valor)"
+prompt_principal: .asciiz "\nVocê está no menu inicial, escolha uma opção:\n1 - Selecionar combustível para encher\n2 - Alterar preço de algum combustível\n3 - Abastecer combustível selecionado\n4 - Alterar Modo (Litros/Valor)\n5 - Visualizar Tabela de Preços\n6 - Encerrar programa\n"
 
 prompt_select_comb: .asciiz "\nSelecione o combustível: 1 - gasolina comum; 2 - Gasolina aditivada; 3 - Álcool."
 
@@ -46,6 +48,10 @@ str_litros: .asciiz " Litros"
 
 str_abastecendo: .asciiz "\nAbastecendo..."
 str_abastecido: .asciiz "\nAbastecimento concluido!\n"
+
+str_tabela_titulo: .asciiz "\nTabela de Preços Atual\n"
+str_colon_space:   .asciiz ": R$ "
+str_newline:       .asciiz "\n"
 
 .text
 
@@ -83,12 +89,14 @@ loop_menu_principal:
     li $t3, 3
     li $t4, 4
     li $t5, 5
+    li $t6, 6
 
-    beq $v0, $t1, select_combustivel # if (escolha == 1)
-    beq $v0, $t2, change_preco       # if (escolha == 2)
-    beq $v0, $t3, abastecer          # if (escolha == 3)
-    beq $v0, $t4, shutDown           # if (escolha == 4) #talvez depois reordenar para shutdown ficar como ultima opção, mas não tô afim agora...
-    beq $v0, $t5, change_mode        # if (escolha == 5)
+    beq $v0, $t1, select_combustivel 
+    beq $v0, $t2, change_preco
+    beq $v0, $t3, abastecer
+    beq $v0, $t4, change_mode          
+    beq $v0, $t5, view_all_prices      
+    beq $v0, $t6, shutDown             
 
 ############## OPÇÃO NÚMERO ERRADO ##############################
     li 	$v0,4
@@ -305,21 +313,21 @@ abastecer_litros:
     li $v0, 4
     move $a0, $s2   # Imprime o nome do combustível
     syscall
-    
-    # Lê o float (litros)
-    li $v0, 6
-    syscall         # $f0 = litros
-    
-    # Carrega o preço do combustível selecionado
-    l.s $f2, 0($s1) # $f2 = preço/litro (do endereço em $s1)
-    
+
     li $v0, 4
     la $a0, preco_selected # "\nPreço: "
     syscall
+
+    # Carrega o preço do combustível selecionado
+    l.s $f2, 0($s1) # $f2 = preço/litro (do endereço em $s1)
     
     li $v0, 2
     mov.s $f12, $f2  # Copia $f2 (o preço) para $f12 (print)
     syscall
+    
+    # Lê o float (litros)
+    li $v0, 6
+    syscall         # $f0 = litros
     
     # Calcula o total: total = litros * preco
     mul.s $f4, $f0, $f2
@@ -338,9 +346,24 @@ abastecer_litros:
     la $a0, str_abastecendo
     syscall
     
-    # 2. Define o delay (ex: 3000 ms = 3 segundos)
-    li $a0, 3000
-    jal delay_ms       # Chama o procedimento de delay
+    # $f0 contém a quantidade de Litros
+    
+    # Carrega a constante de vazão (ms/litro)
+    l.s $f6, ms_por_litro
+    
+    # Calcula o delay total (float)
+    #    $f8 = $f0 (litros) * $f6 (ms_por_litro)
+    mul.s $f8, $f0, $f6
+    
+    # Converte o delay (float) para um inteiro (word)
+    cvt.w.s $f8, $f8
+    
+    # Move o resultado inteiro do coprocessador (FPU) para a CPU
+    #    $a0 = $f8 (agora como um inteiro)
+    mfc1 $a0, $f8
+    
+    # Chama o delay com o valor em $a0
+    jal delay_ms
     
     # "Abastecimento concluido!"
     li $v0, 4
@@ -395,10 +418,24 @@ abastecer_valor:
     la $a0, str_abastecendo
     syscall
     
-    # Define o delay  3000 ms = 3 segundos
-    li $a0, 3000
-    jal delay_ms   
+    # Quantidade de L está em f4
+
+    # Carrega a constante de vazão (ms/litro)
+    l.s $f6, ms_por_litro      # $f6 = 1500.0
     
+    # Calcula o delay total (float)
+    #    $f8 = $f4 (litros) * $f6 (ms_por_litro)
+    mul.s $f8, $f4, $f6
+    
+    # Converte o delay (float) para um inteiro (word)
+    cvt.w.s $f8, $f8
+    
+    #    $a0 = $f8 (agora como um inteiro)
+    mfc1 $a0, $f8
+    
+    # Chama o delay com o valor em $a0
+    jal delay_ms
+
     # "Abastecimento concluido!"
     li $v0, 4
     la $a0, str_abastecido
@@ -428,3 +465,65 @@ delay_loop:
     
     # se passou entao tempo alvo passou
     jr $ra
+
+
+view_all_prices:
+    li $v0, 4
+    la $a0, str_tabela_titulo
+    syscall
+
+    # COMUM
+    li $v0, 4
+    la $a0, str_comum         
+    syscall
+    
+    li $v0, 4
+    la $a0, str_colon_space 
+    syscall
+    
+    la $t0, precos            # Carrega o endereço base de precos
+    l.s $f12, 0($t0)          # Carrega precos[0] (offset 0)
+    li $v0, 2
+    syscall                   
+    
+    li $v0, 4
+    la $a0, str_newline      
+    syscall
+
+    # ADITIVADA 
+    li $v0, 4
+    la $a0, str_aditivada     
+    syscall
+    
+    li $v0, 4
+    la $a0, str_colon_space   
+    syscall
+    
+    la $t0, precos
+    l.s $f12, 4($t0)          # Carrega precos[1] (offset 4)
+    li $v0, 2
+    syscall
+    
+    li $v0, 4
+    la $a0, str_newline
+    syscall
+
+    # ÁLCOOL 
+    li $v0, 4
+    la $a0, str_alcool        
+    syscall
+    
+    li $v0, 4
+    la $a0, str_colon_space 
+    syscall
+    
+    la $t0, precos
+    l.s $f12, 8($t0)          # Carrega precos[2] (offset 8)
+    li $v0, 2
+    syscall
+    
+    li $v0, 4
+    la $a0, str_newline
+    syscall
+
+    j loop_menu_principal
