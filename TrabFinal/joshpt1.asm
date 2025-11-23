@@ -324,6 +324,10 @@ change_preco_erro:
     j change_preco
 
 abastecer:
+    # Salvar retorno na pilha
+    addi $sp, $sp, -4
+    sw $ra, 0($sp)
+    
     # Verifica o modo salvo em $s3
     li $t0, 1
     beq $s3, $t0, abastecer_litros
@@ -398,7 +402,7 @@ abastecer_litros:
 
     # TODO: CUPOM FISCAL
     
-    jr		$ra					# jump to $ra
+    j fim_abastecer
 
 abastecer_valor:
     # Pergunta: "Qual o valor (R$) de [tal combustivel]?"
@@ -469,8 +473,13 @@ abastecer_valor:
     
     # TODO: CUPOM FISCAL
 
-     jr		$ra					# jump to $ra
+     j fim_abastecer
 
+fim_abastecer:
+	lw $ra, 0($sp)	# pega endereço para o menu na pilha
+	addi $sp, $sp, 4
+	
+	jr $ra		# volta para menu principal
 
 
 delay_ms:
