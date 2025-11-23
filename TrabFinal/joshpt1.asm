@@ -92,8 +92,8 @@ loop_menu_principal:
     li $t6, 6
 
     beq $v0, $t1, call_select_combustivel 
-    beq $v0, $t2, change_preco
-    beq $v0, $t3, abastecer
+    beq $v0, $t2, call_change_preco
+    beq $v0, $t3, call_abastecer
     beq $v0, $t4, call_change_mode          
     beq $v0, $t5, call_view_prices      
     beq $v0, $t6, shutDown             
@@ -117,6 +117,16 @@ call_select_combustivel:
 call_change_mode:
 	jal change_mode
 	j loop_menu_principal
+
+call_change_preco:
+    jal change_preco
+    j loop_menu_principal
+
+call_abastecer:
+    jal abastecer
+    j loop_menu_principal
+
+#####################################
 
 shutDown:
    	li   $v0, 10       # syscall para terminar a execução
@@ -298,7 +308,7 @@ change_preco_prompt_loop:
     li $v0, 2          # Syscall 2: print_float
     syscall
 
-    j		loop_menu_principal				# jump to loop_menu_principal
+    jr		$ra					# jump to $ra
 
 preco_negativo_erro:
     li $v0, 4
@@ -388,7 +398,7 @@ abastecer_litros:
 
     # TODO: CUPOM FISCAL
     
-    j loop_menu_principal
+    jr		$ra					# jump to $ra
 
 abastecer_valor:
     # Pergunta: "Qual o valor (R$) de [tal combustivel]?"
@@ -459,7 +469,7 @@ abastecer_valor:
     
     # TODO: CUPOM FISCAL
 
-    j loop_menu_principal
+     jr		$ra					# jump to $ra
 
 
 
