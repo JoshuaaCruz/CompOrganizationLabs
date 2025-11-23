@@ -3,7 +3,7 @@
 # Preços (4 bytes cada, .float)
 precos: .float 5.00, 5.20, 4.00  # [0]=comum, [1]=aditivada, [2]=alcool
 
-ms_por_litro: .float 2000.0 # 2 segundos por litro
+ms_por_litro: .float 1000.0 # 1 segundo por litro
 
 # Nomes (strings)
 str_comum: .asciiz "Gasolina Comum"
@@ -91,11 +91,11 @@ loop_menu_principal:
     li $t5, 5
     li $t6, 6
 
-    beq $v0, $t1, select_combustivel 
+    beq $v0, $t1, call_select_combustivel 
     beq $v0, $t2, change_preco
     beq $v0, $t3, abastecer
-    beq $v0, $t4, change_mode          
-    beq $v0, $t5, view_all_prices      
+    beq $v0, $t4, call_change_mode          
+    beq $v0, $t5, call_view_prices      
     beq $v0, $t6, shutDown             
 
 ############## OPÇÃO NÚMERO ERRADO ##############################
@@ -104,6 +104,19 @@ loop_menu_principal:
 	syscall
 
     j		loop_menu_principal				# jump to loop_menu_principal
+
+##### CHAMADAS JAL #####
+call_view_prices:
+	jal view_all_prices
+	j loop_menu_principal
+	
+call_select_combustivel:
+	jal select_combustivel
+	j loop_menu_principal
+	
+call_change_mode:
+	jal change_mode
+	j loop_menu_principal
 
 shutDown:
    	li   $v0, 10       # syscall para terminar a execução
@@ -161,7 +174,7 @@ select_combustivel:
     move $a0, $s2
     syscall
 
-    j		loop_menu_principal				# jump to loop_menu_principal
+    jr $ra
 
 select_combustivel_erro:
     # Se a validação falhou, imprime o erro e tenta DE NOVO
@@ -196,14 +209,17 @@ set_mode_litros:
     li $v0, 4
     la $a0, str_modo_litros
     syscall
-    j loop_menu_principal
+    j fim_change_mode
     
 set_mode_valor:
     li $s3, 2      # Define o modo global
     li $v0, 4
     la $a0, str_modo_valor
     syscall
-    j loop_menu_principal
+    j fim_change_mode
+
+fim_change_mode:
+	jr $ra
 
 change_preco:
 
@@ -526,4 +542,4 @@ view_all_prices:
     la $a0, str_newline
     syscall
 
-    j loop_menu_principal
+    jr $ra
