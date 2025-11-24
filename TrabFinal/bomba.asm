@@ -1,6 +1,6 @@
 .data
 
-# Preços (4 bytes cada, .float)
+# PreÃ§os (4 bytes cada, .float)
 precos: .float 5.00, 5.20, 4.00  # [0]=comum, [1]=aditivada, [2]=alcool
 
 ms_por_litro: .float 1000.0 # 1 segundo por litro
@@ -24,36 +24,18 @@ linha2:		.byte 2
 linha3: 	.byte 4
 linha4: 	.byte 8
 
-# mapeamento dos LEDs (0 a F)
-led_0:		.byte 0x3F
-led_1: 		.byte 0x06
-led_2:		.byte 0x5B
-led_3:		.byte 0x4F
-led_4:		.byte 0x66
-led_5:		.byte 0x6D
-led_6:		.byte 0x7D
-led_7:		.byte 0x07
-led_8:		.byte 0x7F
-led_9:		.byte 0x6F
-led_A:		.byte 0x77
-led_B:		.byte 0x7C
-led_C:		.byte 0x39
-led_D:		.byte 0x5E
-led_E: 		.byte 0x79
-led_F:		.byte 0x71
-
-# tabela LEDs
+# tabela LEDs para conversÃ£o (0 a F)
 tabela_leds:	.byte 0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F, 0x77, 0x7C, 0x39, 0x5E, 0x79, 0x71
 
-# Tabela de ponteiros/endereços para os nomes (4 bytes cada, .word)
+# Tabela de ponteiros/endereÃ§os para os nomes (4 bytes cada, .word)
 nomes:  .word str_comum, str_aditivada, str_alcool
 
 #INTAKE
-prompt_principal: .asciiz "\nVocê está no menu inicial, escolha uma opção:\n1 - Selecionar combustível para encher\n2 - Alterar preço de algum combustível\n3 - Abastecer combustível selecionado\n4 - Alterar Modo (Litros/Valor)\n5 - Visualizar Tabela de Preços\n6 - Encerrar programa\n"
+prompt_principal: .asciiz "\nVocÃª estÃ¡ no menu inicial, escolha uma opÃ§Ã£o:\n1 - Selecionar combustÃ­vel para encher\n2 - Alterar preÃ§o de algum combustÃ­vel\n3 - Abastecer combustÃ­vel selecionado\n4 - Alterar Modo (Litros/Valor)\n5 - Visualizar Tabela de PreÃ§os\n6 - Encerrar programa\n"
 
-prompt_select_comb: .asciiz "\nSelecione o combustível: 1 - gasolina comum; 2 - Gasolina aditivada; 3 - Álcool."
+prompt_select_comb: .asciiz "\nSelecione o combustÃ­vel: 1 - gasolina comum; 2 - Gasolina aditivada; 3 - Ãlcool."
 
-prompt_preco: .asciiz "\nDigite o float desejado para mudar o preço: "
+prompt_preco: .asciiz "\nDigite o float desejado para mudar o preÃ§o: "
 
 prompt_modo: .asciiz "\nSelecione o modo de abastecimento:\n1 - Por Litros (L)\n2 - Por Valor (R$)\n"
 
@@ -65,14 +47,14 @@ resultInt: .asciiz "\nO inteiro selecionado eh: "
 
 resultFloat: .asciiz "\nO float fornecido eh: "
 
-num_errado: .asciiz "\nOpção inexistente, tente novamente...\n"
+num_errado: .asciiz "\nOpÃ§Ã£o inexistente, tente novamente...\n"
 
 gas_selected: .asciiz "\nO tipo de gasolina selecionado eh: "
 
-preco_selected: .asciiz "\nPreço: "
-novo_preco_selected: .asciiz "\nNovo preço: "
+preco_selected: .asciiz "\nPreÃ§o: "
+novo_preco_selected: .asciiz "\nNovo preÃ§o: "
 
-preco_negativo: .asciiz "\nErro: O preço não pode ser negativo. Tente novamente.\n"
+preco_negativo: .asciiz "\nErro: O preÃ§o nÃ£o pode ser negativo. Tente novamente.\n"
 
 str_modo_litros: .asciiz "\nModo alterado para: Litros (L)\n"
 str_modo_valor: .asciiz "\nModo alterado para: Valor (R$)\n"
@@ -84,19 +66,19 @@ str_litros: .asciiz " Litros"
 str_abastecendo: .asciiz "\nAbastecendo..."
 str_abastecido: .asciiz "\nAbastecimento concluido!\n"
 
-str_tabela_titulo: .asciiz "\nTabela de Preços Atual\n"
+str_tabela_titulo: .asciiz "\nTabela de PreÃ§os Atual\n"
 str_colon_space:   .asciiz ": R$ "
 str_newline:       .asciiz "\n"
 
 .text
 
 main:
-    # Define "Gasolina Comum" (índice 0) como padrão para que $s1 e $s2 nunca sejam nulos.
+    # Define "Gasolina Comum" (Ã­ndice 0) como padrÃ£o para que $s1 e $s2 nunca sejam nulos.
     
-    li $s0, 0           # $s0 = índice 0
+    li $s0, 0           # $s0 = Ã­ndice 0
     li $t0, 0           # $t0 = offset 0 (0 * 4)
     
-    # Define $s1 para apontar para o preço da gas comum
+    # Define $s1 para apontar para o preÃ§o da gas comum
     la $t1, precos
     add $s1, $t1, $t0   # $s1 = &precos[0]
     
@@ -106,7 +88,7 @@ main:
     lw $s2, 0($s2)      # $s2 = &str_comum
 
 
-    li $s3, 1 #s3 guardará estado global da bomba, 1 -> Litros, 2 -> Dinheiro
+    li $s3, 1 #s3 guardarÃ¡ estado global da bomba, 1 -> Litros, 2 -> Dinheiro
 
 loop_menu_principal:
 
@@ -117,7 +99,7 @@ loop_menu_principal:
     	jal ler_teclado
 
 
-    # Carrega as constantes/opções de uma vez
+    # Carrega as constantes/opÃ§Ãµes de uma vez
     li $t1, 1
     li $t2, 2
     li $t3, 3
@@ -132,7 +114,7 @@ loop_menu_principal:
     beq $v0, $t5, call_view_prices      
     beq $v0, $t6, shutDown             
 
-############## OPÇÃO NÚMERO ERRADO ##############################
+############## OPÃ‡ÃƒO NÃšMERO ERRADO ##############################
     li 	$v0,4
 	la 	$a0, num_errado #imprime prompt
 	syscall
@@ -163,7 +145,7 @@ call_abastecer:
 #####################################
 
 shutDown:
-   	li   $v0, 10       # syscall para terminar a execução
+   	li   $v0, 10       # syscall para terminar a execuÃ§Ã£o
    	syscall
 
 select_combustivel:
@@ -182,7 +164,7 @@ select_combustivel:
     blt		$t0, $t1, select_combustivel_erro	# if $t0 < $t1 then goto select_combustivel_erro
     bgt		$t0, $t2, select_combustivel_erro	# if $t0 > $t2 then goto select_combustivel_erro
     
-    #Se passar então está dentro do range estabelecido
+    #Se passar entÃ£o estÃ¡ dentro do range estabelecido
     
 	li 	    $v0,4
 	la 	    $a0, resultInt #fala o seu inteiro eh:
@@ -199,16 +181,16 @@ select_combustivel:
     # Calcula o deslocamento (offset) em bytes
     sll     $t0, $s0, 2       # $t0 = offset (indice * 4)
     
-    # Guarda o ENDEREÇO do preço
-    la      $t1, precos        # Carrega o endereço base da tabela de preços
+    # Guarda o ENDEREÃ‡O do preÃ§o
+    la      $t1, precos        # Carrega o endereÃ§o base da tabela de preÃ§os
     add     $s1, $t1, $t0     # $s1 = &precos[indice]. Guarda isso!
     
-    # Guarda o ENDEREÇO do nome
-    la      $t1, nomes         # Carrega o endereço base da tabela de nomes
+    # Guarda o ENDEREÃ‡O do nome
+    la      $t1, nomes         # Carrega o endereÃ§o base da tabela de nomes
     add     $s2, $t1, $t0     # $s2 = &nomes[indice]. Guarda isso!
     
-    # $s2 agora aponta para um ponteiro. Precisamos "dereferenciar" para pegar o endereço da string em si.
-    lw      $s2, 0($s2)        # Agora $s2 = endereço da string em si (ex: &str_aditivada)
+    # $s2 agora aponta para um ponteiro. Precisamos "dereferenciar" para pegar o endereÃ§o da string em si.
+    lw      $s2, 0($s2)        # Agora $s2 = endereÃ§o da string em si (ex: &str_aditivada)
 
     li $v0, 4
     la $a0, gas_selected
@@ -221,11 +203,11 @@ select_combustivel:
     jr $ra
 
 select_combustivel_erro:
-    # Se a validação falhou, imprime o erro e tenta DE NOVO
+    # Se a validaÃ§Ã£o falhou, imprime o erro e tenta DE NOVO
     li $v0, 4
     la $a0, num_errado
     syscall
-    j select_combustivel # Pula de volta para o *início* da seleção
+    j select_combustivel # Pula de volta para o *inÃ­cio* da seleÃ§Ã£o
 
 
 change_mode:
@@ -242,7 +224,7 @@ change_mode:
     beq $v0, $t1, set_mode_litros
     beq $v0, $t2, set_mode_valor
 
-    # Se não for 1 nem 2, é um erro
+    # Se nÃ£o for 1 nem 2, Ã© um erro
     li $v0, 4
     la $a0, num_errado
     syscall
@@ -267,12 +249,12 @@ fim_change_mode:
 
 change_preco:
 
-    # qual combustível alterar 
+    # qual combustÃ­vel alterar 
     li $v0,4
     la $a0, prompt_select_comb
     syscall
     
-    # 2. Lê e valida a escolha (1-3)
+    # 2. LÃª e valida a escolha (1-3)
     li $v0,5
     syscall
     move $t0, $v0 # $t0 = escolha (1, 2 ou 3)
@@ -288,19 +270,19 @@ change_preco:
 	la 	    $a0,gas_selected #imprime nome da gas selected
 	syscall
     
-    addi    $t1, $t0, -1    # $t1 = índice (0, 1 ou 2)
+    addi    $t1, $t0, -1    # $t1 = Ã­ndice (0, 1 ou 2)
     sll     $t1, $t1, 2     # $t1 = offset (0, 4, ou 8)
 
     # Encontra e imprime o NOME
     la      $t4, nomes      # Carrega end. base da tabela de nomes
     add     $t4, $t4, $t1   # $t4 = &nomes[indice] (usando o offset $t1)
-    lw      $t4, 0($t4)     # $t4 = &str_... (endereço final da string)
+    lw      $t4, 0($t4)     # $t4 = &str_... (endereÃ§o final da string)
     
     li      $v0,4
     move    $a0, $t4
     syscall
 
-    #Calcula o endereço DO PREÇO
+    #Calcula o endereÃ§o DO PREÃ‡O
     la $t2, precos
     add $t2, $t2, $t1       # $t2 = &precos[indice] (usando o MESMO offset $t1)
 
@@ -309,10 +291,10 @@ change_preco:
 	la 	    $a0,preco_selected #imprime preco da gas selected
 	syscall
     
-    # Carrega o VALOR do preço da memória para o registrador de float
+    # Carrega o VALOR do preÃ§o da memÃ³ria para o registrador de float
     l.s $f12, 0($t2)        # Carrega o float de &precos[indice] para $f12
     
-    # Imprime o VALOR (float) que está em $f12
+    # Imprime o VALOR (float) que estÃ¡ em $f12
     li      $v0, 2        
     syscall
     
@@ -325,20 +307,20 @@ change_preco_prompt_loop:
     li		$v0,6   #take float to f0
     syscall
 	
-	mtc1	$zero,$f2 # Carrega 0.0 em $f2 para comparação
+	mtc1	$zero,$f2 # Carrega 0.0 em $f2 para comparaÃ§Ã£o
 
     c.lt.s $f0, $f2       # Compara: $f0 < 0.0 ?
     bc1t preco_negativo_erro # Se for menor pula para o erro
 
-    s.s     $f0, 0($t2) #salva de volta no endereço calculado
+    s.s     $f0, 0($t2) #salva de volta no endereÃ§o calculado
 
-    #PRINT DO NOVO VALOR PEGANDO DO ENDEREÇO SALVO
+    #PRINT DO NOVO VALOR PEGANDO DO ENDEREÃ‡O SALVO
 
     li 	    $v0,4
 	la 	    $a0, novo_preco_selected
 	syscall
 
-    l.s $f12, 0($t2)    # Carrega o NOVO float da memória
+    l.s $f12, 0($t2)    # Carrega o NOVO float da memÃ³ria
     li $v0, 2          # Syscall 2: print_float
     syscall
 
@@ -346,12 +328,12 @@ change_preco_prompt_loop:
 
 preco_negativo_erro:
     li $v0, 4
-    la $a0, preco_negativo # Imprime "Erro: O preço não pode ser negativo..."
+    la $a0, preco_negativo # Imprime "Erro: O preÃ§o nÃ£o pode ser negativo..."
     syscall
-    j change_preco_prompt_loop # Pula de volta para pedir o preço
+    j change_preco_prompt_loop # Pula de volta para pedir o preÃ§o
 
 change_preco_erro:
-    # Se a validação falhou, imprime o erro e tenta DE NOVO
+    # Se a validaÃ§Ã£o falhou, imprime o erro e tenta DE NOVO
     li $v0, 4
     la $a0, num_errado
     syscall
@@ -366,7 +348,7 @@ abastecer:
     li $t0, 1
     beq $s3, $t0, abastecer_litros
     
-    # Se não for 1, deve ser 2 (modo abastecer por valor)
+    # Se nÃ£o for 1, deve ser 2 (modo abastecer por valor)
     j abastecer_valor
 
 abastecer_litros:
@@ -375,21 +357,21 @@ abastecer_litros:
     la $a0, prompt_abastecer_litros
     syscall
     li $v0, 4
-    move $a0, $s2   # Imprime o nome do combustível
+    move $a0, $s2   # Imprime o nome do combustÃ­vel
     syscall
 
     li $v0, 4
-    la $a0, preco_selected # "\nPreço: "
+    la $a0, preco_selected # "\nPreÃ§o: "
     syscall
 
-    # Carrega o preço do combustível selecionado
-    l.s $f2, 0($s1) # $f2 = preço/litro (do endereço em $s1)
+    # Carrega o preÃ§o do combustÃ­vel selecionado
+    l.s $f2, 0($s1) # $f2 = preÃ§o/litro (do endereÃ§o em $s1)
     
     li $v0, 2
-    mov.s $f12, $f2  # Copia $f2 (o preço) para $f12 (print)
+    mov.s $f12, $f2  # Copia $f2 (o preÃ§o) para $f12 (print)
     syscall
     
-    # Lê o float (litros)
+    # LÃª o float (litros)
     li $v0, 6
     syscall         # $f0 = litros
     
@@ -410,9 +392,9 @@ abastecer_litros:
     la $a0, str_abastecendo
     syscall
     
-    # $f0 contém a quantidade de Litros
+    # $f0 contÃ©m a quantidade de Litros
     
-    # Carrega a constante de vazão (ms/litro)
+    # Carrega a constante de vazÃ£o (ms/litro)
     l.s $f6, ms_por_litro
     
     # Calcula o delay total (float)
@@ -444,22 +426,22 @@ abastecer_valor:
     la $a0, prompt_abastecer_valor
     syscall
     li $v0, 4
-    move $a0, $s2   # Imprime o nome do combustível
+    move $a0, $s2   # Imprime o nome do combustÃ­vel
     syscall
     
-    # Lê o float (valor)
+    # LÃª o float (valor)
     li $v0, 6
     syscall         # $f0 = valor
     
-    # Carrega o preço do combustível selecionado
-    l.s $f2, 0($s1) # $f2 = preço/litro (do endereço em $s1)
+    # Carrega o preÃ§o do combustÃ­vel selecionado
+    l.s $f2, 0($s1) # $f2 = preÃ§o/litro (do endereÃ§o em $s1)
     
     li $v0, 4
-    la $a0, preco_selected # Imprime "\nPreço: "
+    la $a0, preco_selected # Imprime "\nPreÃ§o: "
     syscall
     
     li $v0, 2
-    mov.s $f12, $f2  # $f2 (o preço) vai pra $f12 (print)
+    mov.s $f12, $f2  # $f2 (o preÃ§o) vai pra $f12 (print)
     syscall
     
     # Calcula o total: litros = valor / preco
@@ -482,9 +464,9 @@ abastecer_valor:
     la $a0, str_abastecendo
     syscall
     
-    # Quantidade de L está em f4
+    # Quantidade de L estÃ¡ em f4
 
-    # Carrega a constante de vazão (ms/litro)
+    # Carrega a constante de vazÃ£o (ms/litro)
     l.s $f6, ms_por_litro      # $f6 = 1500.0
     
     # Calcula o delay total (float)
@@ -510,14 +492,14 @@ abastecer_valor:
      j fim_abastecer
 
 fim_abastecer:
-	lw $ra, 0($sp)	# pega endereço para o menu na pilha
+	lw $ra, 0($sp)	# pega endereÃ§o para o menu na pilha
 	addi $sp, $sp, 4
 	
 	jr $ra		# volta para menu principal
 
 
 delay_ms:
-    # É esperado que o tempo de espera seja salvo em a0 antes da chamada deste procedimento
+    # Ã‰ esperado que o tempo de espera seja salvo em a0 antes da chamada deste procedimento
 
     move $t1, $a0        # $t1 = delay (ms)
     
@@ -550,7 +532,7 @@ view_all_prices:
     la $a0, str_colon_space 
     syscall
     
-    la $t0, precos            # Carrega o endereço base de precos
+    la $t0, precos            # Carrega o endereÃ§o base de precos
     l.s $f12, 0($t0)          # Carrega precos[0] (offset 0)
     li $v0, 2
     syscall                   
@@ -577,7 +559,7 @@ view_all_prices:
     la $a0, str_newline
     syscall
 
-    # ÁLCOOL 
+    # ÃLCOOL 
     li $v0, 4
     la $a0, str_alcool        
     syscall
@@ -598,83 +580,96 @@ view_all_prices:
     jr $ra
     
     
-############## FUNCOES DIGITAL LAB SIM ##############
+############## FUNCOES DIGITAL LAB SIM (MODIFICADO) ##############
 
-# Ler uma tecla do Digital Lab
 ler_teclado:
-	addi	$sp, $sp, -4
-	sw 	$ra, 0($sp)
-	
+    addi $sp, $sp, -4
+    sw   $ra, 0($sp)
+
 scan_inicio:
-    	li   	$t8, in_lab_row     	# endereco para escolher a linha
-    	li	$t9, in_lab_col		# endereco para ler a coluna
+    li   $t8, 0xFFFF0012     # Row
+    li   $t9, 0xFFFF0014     # Col
 
-    ###### TESTAR LINHA 1 (0, 1, 2, 3) ######
-    	lb   	$t0, linha1
-    	sb   	$t0, 0($t8)         # ativa linha 1
-    	lb   	$t1, 0($t9)         # le resposta
-    	bnez 	$t1, achou_L1       # se t1 != 0, clicou aqui
+    # --- TESTE LINHA 1 (0, 1, 2, 3) ---
+    li   $t0, 1
+    sb   $t0, 0($t8)
+    lb   $t1, 0($t9)
+    andi $t2, $t1, 0xF0      # MASCARA: ignora bits de linha (ruÃ­do), pega sÃ³ coluna
+    bnez $t2, achou_L1       # Se t2 != 0, tem coluna apertada
 
-    ###### TESTAR LINHA 2 (4, 5, 6, 7) ######
-    	lb   	$t0, linha2
-    	sb   	$t0, 0($t8)
-    	lb   	$t1, 0($t9)
-    	bnez 	$t1, achou_L2
+    # --- TESTE LINHA 2 (4, 5, 6, 7) ---
+    li   $t0, 2
+    sb   $t0, 0($t8)
+    lb   $t1, 0($t9)
+    andi $t2, $t1, 0xF0
+    bnez $t2, achou_L2
 
-    ###### TESTAR LINHA 3 (8, 9, A, B) ######
-    	lb   	$t0, linha3
-    	sb   	$t0, 0($t8)
-    	lb   	$t1, 0($t9)
-    	bnez 	$t1, achou_L3
-    
-    	j    scan_inicio         # se nao foi clicado, roda de novo
+    # --- TESTE LINHA 3 (8, 9, A, B) ---
+    li   $t0, 4
+    sb   $t0, 0($t8)
+    lb   $t1, 0($t9)
+    andi $t2, $t1, 0xF0
+    bnez $t2, achou_L3
 
-###### DECODIFICACAO ######
-# cada linha tem uma base (L1=0, L2=4, L3=8), somamos com a coluna
+    j    scan_inicio         # Nenhuma tecla, scaneia novamente
 
 achou_L1:
-    	li   $v0, 0		# base 0
-    	j    calcula_final
+    li   $v0, 0              # Base numÃ©rica da linha 1
+    move $t1, $t2            # Move o valor mascarado para t1
+    j    calcula_final
+
 achou_L2:
-    	li   $v0, 4			# base 4
-    	j    calcula_final
+    li   $v0, 4              # Base numÃ©rica da linha 2
+    move $t1, $t2
+    j    calcula_final
+
 achou_L3:
-    	li   $v0, 8			# base 8
-    	j    calcula_final
+    li   $v0, 8              # Base numÃ©rica da linha 3
+    move $t1, $t2
+    j    calcula_final
 
 calcula_final:
-    # $v0 tem a base e $t1 tem a coluna (1, 2, 4 ou 8)
+    # Agora verifica os bits altos (Colunas: 16, 32, 64, 128)
+    beq  $t1, 16, retorno     # 0x10 -> Col 1 (+0)
+    beq  $t1, 32, soma1       # 0x20 -> Col 2 (+1)
+    beq  $t1, 64, soma2       # 0x40 -> Col 3 (+2)
+    beq  $t1, -128, soma3     # 0x80 -> Col 4 (+3) (128 Ã© -128 signed)
     
-    	beq  $t1, 1, retorno		# col 1: base + 0
-    	beq  $t1, 2, soma1		# col 2: base + 1
-    	beq  $t1, 4, soma2        	# col 3: base + 2
-    	beq  $t1, 8, soma3        	# col 4: base + 3
-    	j    scan_inicio          	# se der erro, roda de novo
+    j    scan_inicio          # Leitura espÃºria, tenta de novo
 
 soma1:
-	addi $v0, $v0, 1
-	j retorno
-	
+    addi $v0, $v0, 1
+    j    esperar_soltar       # VAI PARA DEBOUNCING
 soma2:
-	addi $v0, $v0, 2
-	j retorno
-	
+    addi $v0, $v0, 2
+    j    esperar_soltar
 soma3:
-	addi $v0, $v0, 3
-	j retorno
-
+    addi $v0, $v0, 3
+    j    esperar_soltar
 retorno:
-    	# $v0 tem o numero clicado
-    
-    	# mostra no display
-    	move $a0, $v0
-    	jal  mostrar_display
+    j    esperar_soltar
 
-mostrar_display:
-    	move $a0, $v0
-    	jal  mostrar_display
+# NOVA ROTINA OBRIGATÃ“RIA (DEBOUNCING)
+esperar_soltar:
+    lb   $t5, 0xFFFF0014             # LÃª o teclado
+    andi $t5, $t5, 0xF0              # Aplica mÃ¡scara para ver apenas as colunas
+    bnez $t5, esperar_soltar         # Trava enquanto tiver tecla apertada
     
-    	# Recupera $ra e volta para o menu
-    	lw   $ra, 0($sp)
-    	addi $sp, $sp, 4
-    	jr   $ra
+    # Exibe e retorna
+    move $a0, $v0
+    jal  mostrar_display     
+    
+    lw   $ra, 0($sp)
+    addi $sp, $sp, 4
+    jr   $ra
+
+# MOSTRAR NO DISPLAY (Corrigido o loop infinito do original)
+mostrar_display:
+    la   $t0, tabela_leds     # EndereÃ§o base da tabela
+    add  $t0, $t0, $a0        # Soma o offset (nÃºmero a exibir)
+    lb   $t1, 0($t0)          # Carrega o padrÃ£o de bits do LED
+    
+    li   $t2, 0xFFFF0010      # EndereÃ§o do display
+    sb   $t1, 0($t2)          # Escreve no display
+    
+    jr   $ra
