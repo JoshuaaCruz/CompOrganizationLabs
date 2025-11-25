@@ -10,6 +10,12 @@ str_comum: .asciiz "Gasolina Comum"
 str_aditivada: .asciiz "Gasolina Aditivada"
 str_alcool: .asciiz "Alcool"
 
+####### CUPOM FISCAL #######
+file_name:   .asciiz "cupom.txt"
+header_cupom:.asciiz "--- POSTO JJ ---\n--- CUPOM FISCAL ---\n\nCombustivel Abastecido: "
+footer_cupom:.asciiz "\n\nObrigado pela preferencia!\n--------------------"
+err_file:    .asciiz "Erro ao criar arquivo."
+
 
 ####### CONFIG DIGITAL LABSIM #######
 
@@ -33,7 +39,7 @@ nomes:  .word str_comum, str_aditivada, str_alcool
 #INTAKE
 prompt_principal: .asciiz "\nVocê está no menu inicial, escolha uma opção:\n1 - Selecionar combustível para encher\n2 - Alterar preço de algum combustível\n3 - Abastecer combustível selecionado\n4 - Alterar Modo (Litros/Valor)\n5 - Visualizar Tabela de Preços\n6 - Encerrar programa\n"
 
-prompt_select_comb: .asciiz "\nSelecione o combustível: 1 - gasolina comum; 2 - Gasolina aditivada; 3 - Álcool."
+prompt_select_comb: .asciiz "\nSelecione o combustível: 1 - Gasolina comum; 2 - Gasolina aditivada; 3 - Álcool."
 
 prompt_preco: .asciiz "\nDigite o float desejado para mudar o preço: "
 
@@ -417,6 +423,7 @@ abastecer_litros:
     syscall
 
     # TODO: CUPOM FISCAL
+    jal gerar_cupom
     
     j fim_abastecer
 
@@ -488,6 +495,7 @@ abastecer_valor:
     syscall
     
     # TODO: CUPOM FISCAL
+    jal gerar_cupom
 
      j fim_abastecer
 
@@ -578,7 +586,61 @@ view_all_prices:
     syscall
 
     jr $ra
+
+####### FUNCAO CRIAR CUPORM #######
+gerar_cupom:
+    # 1. ABRIR ARQUIVO (Syscall 13)
+    li   $v0, 13
+    la   $a0, file_name  # Nome do arquivo
+    li   $a1, 1          # Flag: 1 = Escrita (Write-Only) com Criação
+    li   $a2, 0          # Mode: 0 (Ignorado)
+    syscall
     
+    move $s6, $v0        # Salva o "File Descriptor" em $s6
+    
+    # Se der erro ($s6 negativo), pula
+    bltz $s6, fim_cupom
+
+    # 2. ESCREVER CABEÇALHO (Syscall 15)
+    li   $v0, 15
+    move $a0, $s6        # File Descriptor
+    la   $a1, header_cupom
+    li   $a2, 45         # Tamanho aproximado do texto do cabeçalho
+    syscall
+
+    # 3. ESCREVER NOME DO COMBUSTÍVEL
+    # O nome está em $s2. Precisamos saber o tamanho da string.
+    move $t0, $s2        # $t0 aponta para o início da string
+    li   $t1, 0          # Contador de tamanho
+strlen_loop:
+    lb   $t2, 0($t0)     # Lê um caractere
+    beqz $t2, strlen_end # Se for 0 (fim da string), termina
+    addi $t0, $t0, 1
+    addi $t1, $t1, 1
+    j    strlen_loop
+strlen_end:
+    
+    # Agora escrevemos o nome
+    li   $v0, 15
+    move $a0, $s6
+    move $a1, $s2        # Endereço do nome (Gasolina Comum, etc)
+    move $a2, $t1        # Tamanho calculado
+    syscall
+
+    # 4. ESCREVER RODAPÉ
+    li   $v0, 15
+    move $a0, $s6
+    la   $a1, footer_cupom
+    li   $a2, 48         # Tamanho do rodapé
+    syscall
+
+    # 5. FECHAR ARQUIVO (Syscall 16)
+    li   $v0, 16
+    move $a0, $s6
+    syscall
+
+fim_cupom:
+    jr   $ra
     
 ############## FUNCOES DIGITAL LAB SIM (MODIFICADO) ##############
 
