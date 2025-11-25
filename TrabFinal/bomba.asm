@@ -633,13 +633,13 @@ calcula_final:
     beq  $t1, 16, retorno     # 0x10 -> Col 1 (+0)
     beq  $t1, 32, soma1       # 0x20 -> Col 2 (+1)
     beq  $t1, 64, soma2       # 0x40 -> Col 3 (+2)
-    beq  $t1, -128, soma3     # 0x80 -> Col 4 (+3) (128 é -128 signed)
+    beq  $t1, 128, soma3     # 0x80 -> Col 4 (+3) (128 é -128 signed)
     
-    j    scan_inicio          # Leitura espúria, tenta de novo
+    j    scan_inicio     
 
 soma1:
     addi $v0, $v0, 1
-    j    esperar_soltar       # VAI PARA DEBOUNCING
+    j    esperar_soltar
 soma2:
     addi $v0, $v0, 2
     j    esperar_soltar
@@ -649,7 +649,6 @@ soma3:
 retorno:
     j    esperar_soltar
 
-# NOVA ROTINA OBRIGATÓRIA (DEBOUNCING)
 esperar_soltar:
     lb   $t5, 0xFFFF0014             # Lê o teclado
     andi $t5, $t5, 0xF0              # Aplica máscara para ver apenas as colunas
